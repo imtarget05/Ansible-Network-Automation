@@ -1,0 +1,24 @@
+---
+- name: Tác vụ thu thập và sao lưu cấu hình
+  hosts: routers
+  gather_facts: no
+  tasks:
+    - name: Chạy lệnh lấy cấu hình hiện hành
+      cisco.ios.ios_command:
+        commands: show running-config
+      register: config_data
+
+    - name: Lưu cấu hình thành file văn bản trên máy Ubuntu
+      copy:
+        content: "{{ config_data.stdout[0] }}"
+        dest: "./backup_{{ inventory_hostname }}_config.txt"
+      delegate_to: localhost
+
+    - name: Thu thập thông tin thiết bị (Facts)
+      cisco.ios.ios_facts:
+        gather_subset: min
+      register: device_facts
+
+    - name: Hiển thị thông tin phiên bản ra màn hình
+      debug:
+        msg: "Thiết bị {{ inventory_hostname }} đang chạy phiên bản: {{ device_facts.ansible_facts.ansible_net_version }}"

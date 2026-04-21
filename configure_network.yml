@@ -1,0 +1,28 @@
+---
+- name: Tác vụ cấu hình hệ thống mạng tự động
+  hosts: routers
+  gather_facts: no
+  tasks:
+    - name: Cấu hình tên thiết bị (Hostname)
+      cisco.ios.ios_hostname:
+        config:
+          hostname: "{{ inventory_hostname }}"
+        state: merged
+
+    - name: Cấu hình Banner thông báo khi đăng nhập
+      cisco.ios.ios_banner:
+        banner: motd
+        text: |
+          **************************************************
+          * CANH BAO: Thiet bi thuoc quan ly cua Team UIT  *
+          * Moi truy cap trai phep se bi ghi lai log.      *
+          **************************************************
+        state: present
+
+    - name: Tạo Interface Loopback để kiểm tra
+      cisco.ios.ios_interfaces:
+        config:
+          - name: Loopback100
+            description: Interface_Ao_Tu_Ansible
+            enabled: true
+        state: merged
